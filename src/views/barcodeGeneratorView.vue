@@ -243,8 +243,8 @@ export default defineComponent({
         barcodeValue.value = ''
         return
       }
-      barcodeWidth.value = barcodeType.defaultSize[0]
-      barcodeHeight.value = barcodeType.defaultSize[1]
+      barcodeWidth.value = barcodeType.size[0]
+      barcodeHeight.value = barcodeType.size[1]
       barcodeValue.value = barcodeType.defaultValue
       console.log(barcodeType)
     }
