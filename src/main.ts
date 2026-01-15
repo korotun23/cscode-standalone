@@ -11,11 +11,13 @@ import '@fontsource/courier-prime'
 
 // Import services
 import { BarcodeTypeService } from './services/barcodeTypeService'
+import { BarcodeGeneratorService } from './services/barcodeGeneratorService'
 
 const app = createApp(App)
 
 // Provide services to the app and all child components
 app.provide('barcodeTypeService', new BarcodeTypeService())
+app.provide('barcodeGeneratorService', new BarcodeGeneratorService())
 
 app.use(router)
 

@@ -8,8 +8,8 @@
  * @property size - The default size of the barcode type (e.g [200, 200])
  */
 export interface BarcodeTypeInterface {
-  identifier: string;
-  name: string;
-  defaultValue: string;
-  size: [number, number];
+  identifier: string
+  name: string
+  defaultValue: string
+  size: [number, number]
 }

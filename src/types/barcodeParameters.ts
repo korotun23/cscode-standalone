@@ -1,4 +1,4 @@
-import type { BarcodeTypeInterface } from "./barcodeTypeInterface";
+import type { BarcodeTypeInterface } from './barcodeTypeInterface'
 
 /**
  * Class representing the parameters of a barcode
@@ -11,19 +11,19 @@ import type { BarcodeTypeInterface } from "./barcodeTypeInterface";
  * @property imageFormat - The default value of the image format option (e.g 'png')
  */
 export class BarcodeParameters implements BarcodeTypeInterface {
-    identifier: string;
-    name: string;
-    defaultValue: string;
-    size: [number, number];
-    printTextValue: boolean;
-    imageFormat: string;
+  identifier: string
+  name: string
+  defaultValue: string
+  size: [number, number]
+  printTextValue: boolean
+  imageFormat: string
 
-    constructor(identifier: string, name: string, defaultValue: string, size: [number, number], printTextValue: boolean, imageFormat: string) {
-        this.identifier = identifier;
-        this.name = name;
-        this.defaultValue = defaultValue;
-        this.size = size;
-        this.printTextValue = printTextValue;
-        this.imageFormat = imageFormat;
-    }
+  constructor() {
+    this.identifier = ''
+    this.name = ''
+    this.defaultValue = ''
+    this.size = [0, 0]
+    this.printTextValue = false
+    this.imageFormat = ''
+  }
 }

@@ -43,7 +43,8 @@
                       class="input is-fullwidth"
                       type="text"
                       placeholder="Width"
-                      v-model="barcodeWidth"
+                      v-model="barcodeParameters.size[0]"
+                      @change="updateBarcodePreview()"
                     />
                   </div>
                 </div>
@@ -55,7 +56,8 @@
                       class="input is-fullwidth"
                       type="text"
                       placeholder="Height"
-                      v-model="barcodeHeight"
+                      v-model="barcodeParameters.size[1]"
+                      @change="updateBarcodePreview()"
                     />
                   </div>
                 </div>
@@ -75,7 +77,11 @@
             </div>
             <div class="field">
               <label class="checkbox">
-                <input type="checkbox" />
+                <input
+                  type="checkbox"
+                  v-model="barcodeParameters.printTextValue"
+                  @change="updateBarcodePreview()"
+                />
                 Print text value
               </label>
             </div>
@@ -91,11 +97,7 @@
             <h2 class="card-header-title">Preview</h2>
           </div>
           <div class="card-content">
-            <img
-              class="image is-3by1"
-              src="https://bulma.io/assets/images/placeholders/1280x960.png"
-              alt=""
-            />
+            <svg v-html="barcodePreview"></svg>
             <div class="field pt-5">
               <div class="control">
                 <input
@@ -103,6 +105,7 @@
                   type="text"
                   placeholder="Enter a test value"
                   v-model="barcodeValue"
+                  @change="updateBarcodePreview()"
                 />
               </div>
             </div>
@@ -215,11 +218,15 @@
 </template>
 
 <script lang="ts">
+// Vue
 import { defineComponent, inject, ref, watch } from 'vue'
+// Services
 import { BarcodeTypeService } from '../services/barcodeTypeService'
-
+import { BarcodeGeneratorService } from '../services/barcodeGeneratorService'
+// Types
 import type { Ref } from 'vue'
 import type { BarcodeTypeInterface } from '../types/barcodeTypeInterface'
+import { BarcodeParameters } from '@/types/barcodeParameters'
 
 export default defineComponent({
   name: 'BarcodeGeneratorView',
@@ -227,30 +234,53 @@ export default defineComponent({
     // Services injected
     const barcodeTypeService: BarcodeTypeService | undefined =
       inject<BarcodeTypeService>('barcodeTypeService')
+    const barcodeGeneratorService: BarcodeGeneratorService | undefined =
+      inject<BarcodeGeneratorService>('barcodeGeneratorService')
 
     const barcodeTypes: BarcodeTypeInterface[] | undefined = barcodeTypeService?.getBarcodeTypes()
+    const barcodeParameters: Ref<BarcodeParameters> = ref(new BarcodeParameters())
 
     const barcodeWidth: Ref<number> = ref(0)
     const barcodeHeight: Ref<number> = ref(0)
     const barcodeValue: Ref<string> = ref('')
+    const barcodePreview: Ref<string> = ref('')
+    const printTextValue: Ref<boolean> = ref(false)
 
     const selectedBarcodeType = ref<BarcodeTypeInterface | undefined>(undefined)
 
     function updateDefaultValues(barcodeType: BarcodeTypeInterface | undefined) {
       if (typeof barcodeType === 'undefined') {
-        barcodeWidth.value = 0
-        barcodeHeight.value = 0
-        barcodeValue.value = ''
+        barcodeParameters.value.size = [0, 0]
+        barcodeParameters.value.defaultValue = ''
         return
       }
-      barcodeWidth.value = barcodeType.size[0]
-      barcodeHeight.value = barcodeType.size[1]
+      barcodeParameters.value.identifier = barcodeType.identifier
+      barcodeParameters.value.name = barcodeType.name
+      barcodeParameters.value.size = barcodeType.size
+      barcodeParameters.value.defaultValue = barcodeType.defaultValue
       barcodeValue.value = barcodeType.defaultValue
-      console.log(barcodeType)
+    }
+
+    function updateBarcodePreview() {
+      if (
+        typeof barcodeGeneratorService === 'undefined' ||
+        typeof barcodeParameters.value === 'undefined'
+      )
+        return
+      // Generate svg preview
+      try {
+        barcodePreview.value = barcodeGeneratorService.generateBarcode(
+          barcodeParameters.value,
+          barcodeValue.value,
+        )
+      } catch (error) {
+        console.error(error)
+      }
     }
 
     watch(selectedBarcodeType, (newBarcodeType: BarcodeTypeInterface | undefined) => {
       updateDefaultValues(newBarcodeType)
+      updateBarcodePreview()
     })
 
     return {
@@ -258,7 +288,11 @@ export default defineComponent({
       barcodeWidth,
       barcodeHeight,
       barcodeValue,
+      printTextValue,
+      barcodePreview,
       selectedBarcodeType,
+      barcodeParameters,
+      updateBarcodePreview,
       updateDefaultValues,
     }
   },
